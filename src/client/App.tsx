@@ -1,26 +1,31 @@
 import React from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
-import axios from 'axios';
-import { User } from '../server/api';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Landing } from './components/Landing';
+import { User } from './components/User';
 
-export const App = () => {
-  const [data, setData] = React.useState<User[]>();
-
-  React.useEffect(() => {
-    console.log('inside useEffect');
-    const getData = async (): Promise<User[]> => {
-      const data = await axios.get<User[]>('http://localhost:4000/users');
-      return data.data;
-    };
-    getData().then((resp) => setData(resp));
-  }, []);
-
+const Nav = () => {
   return (
-    <Flex h="100%" mt="2" bg="white" justify="center" flexDir="column">
-      <Text color="black" fontSize="3xl" fontWeight="bold" align="center">
+    <Flex mt="6" bg="white" justify="center">
+      <Text color="green.800" fontSize="3xl" fontWeight="bold" align="center">
         LWB - Code Challenge
       </Text>
-      <Flex>{JSON.stringify(data, null, 2)}</Flex>
     </Flex>
+  );
+};
+
+export const App = () => {
+  return (
+    <BrowserRouter>
+      <Flex h="100%" flexDir="column">
+        <Nav />
+        <Box h="100%" flexGrow={1} overflowY="auto" bg="white">
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/user/:username" element={<User />} />
+          </Routes>
+        </Box>
+      </Flex>
+    </BrowserRouter>
   );
 };

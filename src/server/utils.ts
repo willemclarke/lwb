@@ -1,4 +1,4 @@
-import { CarerEntity, ClientEntity, Response } from './api';
+import { CarerEntity, ClientEntity, Response } from './userSservice';
 
 export const isCarer = (response: Response): response is CarerEntity => {
   return response.type === 'carerEntity';
