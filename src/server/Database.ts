@@ -1,5 +1,6 @@
 import axios from 'axios';
 import fs from 'fs';
+import _ from 'lodash';
 
 export interface CarerEntity {
   id: string;
@@ -31,15 +32,14 @@ export interface ClientEntity {
   users_allowed_access: string[];
 }
 
-export type ClientCarerData = (CarerEntity | ClientEntity)[];
-
 export interface User {
   clientEntities: ClientEntity[];
   carerEntities: CarerEntity[];
   favourites: string[];
 }
 
-// Record whereby string (username) key, value User
+export type ClientCarerData = (CarerEntity | ClientEntity)[];
+
 export type Database = Record<string, User>;
 
 export class DatabaseService {
@@ -52,12 +52,12 @@ export class DatabaseService {
     const initialData = usernames.reduce<Database>((acc, username) => {
       const clientEntities = data
         .filter((resp) => resp.type === 'client' && resp.users_allowed_access.includes(username))
-        .slice(0, 50) as ClientEntity[];
+        .slice(0, 100) as ClientEntity[];
       const carerEntities = data
         .filter(
           (resp) => resp.type === 'carerEntity' && resp.users_allowed_access.includes(username)
         )
-        .slice(0, 50) as CarerEntity[];
+        .slice(0, 100) as CarerEntity[];
 
       return {
         ...acc,
@@ -86,12 +86,33 @@ export class DatabaseService {
 
   async getUser(username: string): Promise<User | null> {
     const data = await this.getData();
-    const users = await this.getUsernames();
+    return data[username] ?? null;
+  }
 
-    if (!users.includes(username)) {
-      return null;
+  async insertFavouriteForUser(username: string, id: string): Promise<void> {
+    let data = await this.getData();
+    const user = await this.getUser(username);
+
+    if (!user) {
+      throw new Error(`${username} not found`);
     }
 
-    return data[username];
+    data[username] = { ...user, favourites: _.uniq([...user.favourites, id]) };
+    fs.promises.writeFile('./database.json', JSON.stringify(data));
+  }
+
+  async removeFavouriteForUser(username: string, id: string): Promise<void> {
+    let data = await this.getData();
+    const user = await this.getUser(username);
+
+    if (!user) {
+      throw new Error(`${username} not found`);
+    }
+
+    data[username] = {
+      ...user,
+      favourites: _.reject(user.favourites, (exisitingId) => exisitingId === id),
+    };
+    fs.promises.writeFile('./database.json', JSON.stringify(data));
   }
 }

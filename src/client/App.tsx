@@ -1,18 +1,10 @@
 import React from 'react';
-import { Box, Flex, Text } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { Nav } from './components/Nav';
 import { Landing } from './components/Landing';
-import { User } from './components/User';
-
-const Nav = () => {
-  return (
-    <Flex mt="6" bg="white" justify="center">
-      <Text color="green.800" fontSize="3xl" fontWeight="bold" align="center" as="b">
-        Life Without Barriers - Challenge
-      </Text>
-    </Flex>
-  );
-};
+import { User } from './components/user/User';
+import { Fallback } from './components/Fallback';
 
 export const App = () => {
   return (
@@ -23,7 +15,7 @@ export const App = () => {
           <Switch>
             <Route exact path="/" component={Landing} />
             <Route exact path="/user/:username" component={User} />
-            {/* <Route path="*" component={Landing} /> */}
+            <Route path="*" component={Fallback} />
           </Switch>
         </Box>
       </Flex>

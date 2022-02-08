@@ -1,6 +1,10 @@
 import _ from 'lodash';
 
-export const parseUsername = (user: string): string => {
-  const [firstName, lastName] = user.split('.');
+export const parseUsername = (username: string): string => {
+  if (!username.includes('.')) {
+    return _.upperFirst(username);
+  }
+
+  const [firstName, lastName] = username.split('.');
   return `${_.upperFirst(firstName)} ${_.upperFirst(lastName)}`;
 };

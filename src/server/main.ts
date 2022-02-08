@@ -2,17 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import _ from 'lodash';
 import { DatabaseService } from './Database';
+import bodyParser from 'body-parser';
 
 const app = express();
 const PORT = 4000;
 
 app.use(cors());
-
-//TODO:
-// - fix Cannot set headers error
-// - add method to insert user to Database.ts
-// - add UI component for <Carers />
-// - fix not being able to go directly to route via url -- temporarily fixed
+app.use(bodyParser.json());
 
 (async () => {
   const databaseService = await DatabaseService.create();
@@ -27,10 +23,26 @@ app.use(cors());
     const user = await databaseService.getUser(req.params.username);
 
     if (_.isNull(user)) {
-      res.status(404).send(`Error, resource not found`);
+      return res.status(404).send(new Error(`Error, ${req.params.username} doesn't exist`));
     }
 
     res.status(200).json(user);
+  });
+
+  app.post('/:username/favourites', async (req, res) => {
+    const username = req.params.username;
+    const id = req.body.id;
+    await databaseService.insertFavouriteForUser(username, id);
+
+    res.status(200).json(id);
+  });
+
+  app.delete('/:username/favourites/:id', async (req, res) => {
+    const username = req.params.username;
+    const id = req.params.id;
+    await databaseService.removeFavouriteForUser(username, id);
+
+    res.status(200).json();
   });
 
   app.listen(PORT, () => {
