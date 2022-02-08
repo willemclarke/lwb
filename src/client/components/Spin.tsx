@@ -7,7 +7,7 @@ import {
 
 export const Spin = (props: ChakraSpinnerProps) => {
   return (
-    <Center h="100%" w="100%">
+    <Center h="100vh" w="100%">
       <ChakraSpinner color="blue.500" {...props} />
     </Center>
   );

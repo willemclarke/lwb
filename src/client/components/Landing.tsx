@@ -4,12 +4,7 @@ import { Spin } from './Spin';
 import { useUsernamesQuery } from '../hooks/useUsernamesQuery';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-
-const parseUser = (user: string): string => {
-  const [firstName, lastName] = user.split('.');
-  const parsed = `${_.upperFirst(firstName)} ${_.upperFirst(lastName)}`;
-  return parsed;
-};
+import { parseUsername } from '../utils/utils';
 
 export const Landing = () => {
   const { data, isLoading, error } = useUsernamesQuery();
@@ -23,11 +18,11 @@ export const Landing = () => {
   }
 
   const users = data.map((user, idx) => {
-    const parsedUser = parseUser(user);
+    const parsedUser = parseUsername(user);
 
     return (
       <Link to={`/user/${user}`} key={`option-${idx}`}>
-        <ListItem>{parsedUser}</ListItem>
+        <ListItem mt={2}>{parsedUser}</ListItem>
       </Link>
     );
   });
@@ -36,7 +31,7 @@ export const Landing = () => {
     <Flex m="4" justify="center">
       <Flex maxW="sm" bg="white" w="400px" p="2" flexDir="column" alignItems="center">
         <Heading size="md" mb="4">
-          Select a user
+          Select a user:
         </Heading>
         <List spacing={4}>{users}</List>
       </Flex>

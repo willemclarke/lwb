@@ -1,34 +1,37 @@
 import express from 'express';
 import cors from 'cors';
-import { UserService, fetchRawData } from './userSservice';
+import _ from 'lodash';
+import { DatabaseService } from './Database';
 
 const app = express();
 const PORT = 4000;
 
 app.use(cors());
 
+//TODO:
+// - fix Cannot set headers error
+// - add method to insert user to Database.ts
+// - add UI component for <Carers />
+// - fix not being able to go directly to route via url -- temporarily fixed
+
 (async () => {
-  const data = await fetchRawData();
-  const userService = new UserService(data);
+  const databaseService = await DatabaseService.create();
 
   app.get('/usernames', async (_, res) => {
-    const usernames = userService.getUsernames();
+    const usernames = await databaseService.getUsernames();
 
-    res.send(JSON.stringify(usernames, null, 2));
+    res.status(200).json(usernames);
   });
 
   app.get('/user/:username', async (req, res) => {
-    console.log('req.params.username: ', req.params.username);
-    const user = userService.getUser(req.params.username);
+    const user = await databaseService.getUser(req.params.username);
 
-    res.send(JSON.stringify(user, null, 2));
+    if (_.isNull(user)) {
+      res.status(404).send(`Error, resource not found`);
+    }
+
+    res.status(200).json(user);
   });
-
-  // app.get('/users', async (req, res) => {
-  //   const users = userService.getUsers();
-
-  //   res.send(JSON.stringify(users, null, 2));
-  // });
 
   app.listen(PORT, () => {
     console.log(`jwt-auth listening on port ${PORT}`);
